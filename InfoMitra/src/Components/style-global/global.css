@@ -1,0 +1,80 @@
+:root {
+    --warna-utama: #0A2A4E;
+    --warna-aksen: #00AEEF;
+    --warna-netral-putih: #FFFFFF;
+    --warna-netral-abu: #cccccc;
+    --kokok : #194274;
+
+    --warna_header: var(--warna-utama);
+    --warna_login: linear-gradient(
+        to right, var(--warna-aksen), #4fc3f7
+    );
+
+    --warna_main: linear-gradient(to right, #1f3246, #13489c);
+
+    --warna_footer_t1: var(--warna-utama);
+    --warna_footer_t2: #061a33;
+}
+
+header {
+    background: var(--warna_header);
+    color: #dfdfdf;
+}
+
+main {
+    background: var(--warna-netral-putih);
+}
+
+#details {
+    display: none;
+}
+
+@media (max-width: 1022px) {
+    #details.show {
+        display: flex;
+    }
+}
+
+@media (min-width: 1023px) {
+    #details {
+        display: none !important;
+    }
+}
+
+#detail_profil_user {
+    display: none;
+}
+
+#wadah_brosur img {
+    border-radius: 20px;
+    width: 70vw;
+    min-width: 70vw;
+    flex-shrink: 0;
+}
+
+#wadah_brosur img:first-child {
+    margin-left: 15vw;
+}
+
+@media (max-width: 768px) {
+    #wadah_brosur img {
+        width: 100vw;
+        min-width: 99vw;
+        border-radius: 10px;
+    }
+
+    #wadah_brosur img:first-child {
+        margin-left: 0vw;
+    }
+}
+
+footer section:first-child {
+    background: var(--warna_footer_t1);
+    overflow: hidden;
+}
+
+footer section:last-child {
+    background: var(--warna_footer_t2);
+    overflow: hidden;
+    color: rgb(170, 170, 170);
+}
