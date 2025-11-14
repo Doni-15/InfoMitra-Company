@@ -35,11 +35,14 @@ import { TampilanAwal } from "./component/tampilan-awal.jsx";
 import { HeroSection, NilaiNilai } from "./component/hero-section.jsx";
 import { ProfilTamu } from "./component/profil-belum-ada-akun.jsx";
 
+import { KosWanitaAzka } from './KosWanitaAzka/KosWanitaAzka.jsx';
+
 export {
     ScrollToTop, TitlePages, CaraKerja,
     BrosurVip, BrosurKecil, KomentarBox,
     LogoUsaha, LaptopNavigasi, MobileMenu, UserProfile,
     Header, MainLayout, Footer,
     PricingCard, PlanDetails, TampilanAwal, 
-    HeroSection, NilaiNilai, ProfilTamu
+    HeroSection, NilaiNilai, ProfilTamu,
+    KosWanitaAzka
 }
