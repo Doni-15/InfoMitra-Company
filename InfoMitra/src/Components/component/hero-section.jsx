@@ -33,7 +33,7 @@ export const TentangKami = () => {
 export function HeroSection({beranda}){
     return(
         <>
-            <motion.section className='h-screen flex text-white bg-gradient-to-r from-[#1f3246] to-[#13489c]' variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }}>
+            <motion.section className='h-screen flex text-white bg-linear-to-r from-[#1f3246] to-[#13489c]' variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }}>
                 <div className='my-auto'>
                     <motion.h1 className="text-center font-bold text-2xl md:text-5xl px-5 md:px-30 pb-5" variants={itemVariants} >
                         Promosi Digital yang Mudah & Terjangkau untuk UMKM
