@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Header, MainLayout, Footer } from '@/Components';
+import { Header, MainLayout, Footer, KosWanitaAzka } from '@/Components';
 
 import { 
   GaleriIklan, Beranda, PaketDanHarga,
@@ -33,6 +33,7 @@ function App() {
           <Route path="/" element={<Navigate to="/Pages/galeri-iklan" replace />} />
           <Route path="*" element={<Navigate to="/Pages/galeri-iklan" replace />} />
 
+          <Route path="/Pages/kos-azka" element={<KosWanitaAzka />} />
         </Routes>
 
         <Footer />
