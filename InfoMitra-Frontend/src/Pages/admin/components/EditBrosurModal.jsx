@@ -32,10 +32,23 @@ export function EditBrosurModal({ isOpen, onClose, onSuccess, editData }) {
             setFileGambar(null);
         }
     }, [isOpen, editData]);
+
+    useEffect(() => {
+        return () => {
+            if (previewUrl && previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
     
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("Ukuran gambar maksimal 5MB!");
+                return;
+            }
+
             setFileGambar(file);
             setPreviewUrl(URL.createObjectURL(file));
         }
@@ -58,7 +71,6 @@ export function EditBrosurModal({ isOpen, onClose, onSuccess, editData }) {
             }
             formData.append("link_tujuan", finalLink);
 
-            
             if (tambahDurasi) {
                 const newDate = new Date();
                 newDate.setMonth(newDate.getMonth() + parseInt(durasi));
@@ -78,6 +90,7 @@ export function EditBrosurModal({ isOpen, onClose, onSuccess, editData }) {
             onClose();
             
         } catch (error) {
+            console.error(error);
             const serverMessage = error.response?.data?.msg || "Gagal mengupdate data.";
             toast.error(serverMessage);
         } finally {
@@ -170,7 +183,7 @@ export function EditBrosurModal({ isOpen, onClose, onSuccess, editData }) {
                                     <p className="text-[10px] text-yellow-500 mt-1">*Tanggal berakhir lama akan ditimpa.</p>
                                 </div>
                             )}
-                            {!tambahDurasi && (
+                            {!tambahDurasi && editData.tanggal_berakhir && (
                                 <p className="text-xs text-gray-500 flex items-center gap-1">
                                     <Calendar size={12}/> Berakhir: {new Date(editData.tanggal_berakhir).toLocaleDateString('id-ID')}
                                 </p>

@@ -10,6 +10,12 @@ export default function TestimoniModal({ isOpen, onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!ulasan.trim()) {
+            toast.error("Mohon tulis ulasan Anda.");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -26,7 +32,7 @@ export default function TestimoniModal({ isOpen, onClose }) {
 
         } catch (error) {
             console.error(error);
-            const msg = error.response?.data?.msg || "Gagal mengirim ulasan.";
+            const msg = error.response?.data?.msg || "Gagal mengirim ulasan. Periksa koneksi server.";
             toast.error(msg);
         } finally {
             setLoading(false);

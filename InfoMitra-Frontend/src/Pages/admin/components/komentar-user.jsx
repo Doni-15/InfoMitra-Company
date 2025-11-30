@@ -13,10 +13,13 @@ export function KomentarUser() {
         setLoading(true);
         try {
             const data = await testimoniService.getAllAdmin(); 
-            setTestimonis(data);
+            const safeData = Array.isArray(data) ? data : [];
+            setTestimonis(safeData);
         } 
         catch (error) {
+            console.error("Error fetching testimoni:", error);
             toast.error("Gagal mengambil data komentar. Periksa koneksi.");
+            setTestimonis([]);
         } 
         finally {
             setLoading(false);
@@ -69,7 +72,9 @@ export function KomentarUser() {
         }
     };
 
-    const filteredList = testimonis.filter(item => {
+    const listToFilter = Array.isArray(testimonis) ? testimonis : [];
+    
+    const filteredList = listToFilter.filter(item => {
         const name = item.user_nama || item.nama || "";
         const text = item.isi_text || "";
         const email = item.email || ""; 
@@ -111,7 +116,7 @@ export function KomentarUser() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4">
-                    {Array.isArray(filteredList) && filteredList.map((item) => {
+                    {filteredList.map((item) => {
                         const userName = item.user_nama || item.nama || "User";
                         const userRole = item.user_role || item.role || "user";
                         const userEmail = item.email || "Email tidak tersedia";

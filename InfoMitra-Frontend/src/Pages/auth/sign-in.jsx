@@ -39,13 +39,19 @@ export function SignIn({ setUser }){
         try {
             const cleanEmail = form.email.trim();
             const response = await authService.login(cleanEmail, form.password);
-            const loggedInUser = response.user; 
+            const loggedInUser = response?.user; 
+
+            if (!loggedInUser) {
+                throw new Error("Format respon server tidak valid (Data user tidak ditemukan).");
+            }
 
             if(setUser){ 
                 setUser(loggedInUser);
             }
 
-            if (loggedInUser.role && loggedInUser.role.toLowerCase() === 'admin') {
+            const userRole = loggedInUser.role?.toLowerCase() || 'user';
+
+            if (userRole === 'admin') {
                 toast.success(`Login Admin Berhasil! Halo ${loggedInUser.nama}`);
                 
                 setTimeout(() => {
@@ -60,7 +66,8 @@ export function SignIn({ setUser }){
             }
         } 
         catch (err) {
-            const msg = err.response?.data?.message || "Gagal Login. Periksa Email/Password.";
+            console.error("Login Error:", err);
+            const msg = err.response?.data?.message || err.message || "Gagal Login. Periksa Email/Password.";
             setError(msg);
             toast.error(msg);
         }
@@ -115,6 +122,7 @@ export function SignIn({ setUser }){
                             buttonText={isLoading ? "Memproses..." : "Sign In"}
                             tombolKiri={false}
                             onClick={handleSubmit}
+                            disabled={isLoading}
                         />
                     </div>
 

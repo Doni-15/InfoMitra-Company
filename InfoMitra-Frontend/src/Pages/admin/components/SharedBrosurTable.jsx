@@ -26,13 +26,17 @@ export function SharedBrosurTable({ title, filterRule, badgeLabel }) {
         setLoading(true);
         try { 
             const response = await brosurService.getAllAdmin(); 
-            const filteredResponse = response.filter(filterRule);
+            const safeData = Array.isArray(response) ? response : [];
+            const filteredResponse = safeData.filter(filterRule);
             
             setDataBrosur(filteredResponse);
             setFilteredData(filteredResponse);
         } 
         catch (error) {
+            console.error("Error loading data:", error);
             toast.error("Gagal memuat data dari server.");
+            setDataBrosur([]);
+            setFilteredData([]);
         } 
         finally {
             setLoading(false);
@@ -41,7 +45,7 @@ export function SharedBrosurTable({ title, filterRule, badgeLabel }) {
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
-            let results = dataBrosur;
+            let results = Array.isArray(dataBrosur) ? dataBrosur : [];
 
             if (selectedCategory) {
                 results = results.filter(item => item.kategori === selectedCategory);

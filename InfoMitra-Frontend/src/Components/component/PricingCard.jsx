@@ -10,8 +10,9 @@ export function PricingCard() {
     const fetchData = async () => {
       try {
         const result = await hargaIklanService.getAllPackages();
-        
-        const mappedData = (result || []).map((pkg) => {
+        const safeResult = Array.isArray(result) ? result : [];
+
+        const mappedData = safeResult.map((pkg) => {
           const labelUpper = (pkg.label || "").toUpperCase();
           const isVIP = pkg.name.toLowerCase().includes("vip");
           const isSpecialTheme = isVIP; 
@@ -19,7 +20,7 @@ export function PricingCard() {
           const hargaArr = [];
           const diskonArr = [];
 
-          if (pkg.discounts && pkg.discounts.length > 0) {
+          if (pkg.discounts && Array.isArray(pkg.discounts) && pkg.discounts.length > 0) {
              pkg.discounts.forEach((disc) => {
                 const labelDurasi = disc.duration === 12 ? "1 Tahun" : `${disc.duration} Bulan`;
                 const totalHargaRaw = pkg.price * disc.duration;
@@ -43,7 +44,7 @@ export function PricingCard() {
             background: isSpecialTheme ? "bg-[var(--color-base-100)] text-gray-300" : "bg-[#ececec] text-blue-950",
             path: isSpecialTheme ? CheckIcon2 : CheckIcon,
             populer: labelUpper === "POPULER", 
-            benefit: pkg.features,
+            benefit: Array.isArray(pkg.features) ? pkg.features : [], 
             durasi: durasiArr,
             harga: hargaArr,
             diskon: diskonArr
@@ -54,6 +55,7 @@ export function PricingCard() {
       } 
       catch (error) {
         console.error("Gagal ambil data paket:", error);
+        setDataPaket([]);
       } 
       finally {
         setLoading(false);
@@ -69,9 +71,15 @@ export function PricingCard() {
 
   return (
     <section className="w-full mx-auto px-4 md:px-20 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10">
-      {dataPaket.map((item) => (
-        <Card key={item.id} item={item} />
-      ))}
+      {Array.isArray(dataPaket) && dataPaket.length > 0 ? (
+        dataPaket.map((item) => (
+          <Card key={item.id} item={item} />
+        ))
+      ) : (
+        <div className="col-span-full text-center text-gray-400 py-10">
+          Belum ada paket tersedia.
+        </div>
+      )}
     </section>
   );
 }
@@ -92,6 +100,8 @@ function Card({ item }) {
   const handleChange = (e) => {
     const selectedIndex = parseInt(e.target.value);
     
+    if (!item.harga[selectedIndex] || !item.durasi[selectedIndex]) return;
+
     const hargaRaw = item.harga[selectedIndex];
     const hargaNum = parseRp(hargaRaw);
     const diskonVal = item.diskon[selectedIndex];
@@ -108,13 +118,13 @@ function Card({ item }) {
     setSelectedItems([newData]);
   };
 
-  const defaultHargaRaw = item.harga[0];
+  const defaultHargaRaw = item.harga?.[0] || "Rp 0";
   const defaultHargaNum = parseRp(defaultHargaRaw);
-  const defaultDiskon = item.diskon[0];
+  const defaultDiskon = item.diskon?.[0] || 0;
   const defaultHargaDiskonNum = defaultHargaNum * (1 - defaultDiskon);
 
   const displayItem = selectedItems[0] || {
-    durasi: item.durasi[0],
+    durasi: item.durasi?.[0] || "-",
     hargaAsli: defaultHargaRaw,
     diskon: defaultDiskon,
     hargaFinal: defaultDiskon > 0 ? formatRp(defaultHargaDiskonNum) : defaultHargaRaw,
@@ -171,7 +181,7 @@ function Card({ item }) {
       </section>
 
       <section className="mt-5 text-lg min-h-[150px]">
-        {item.benefit.map((benefit, index) => (
+        {Array.isArray(item.benefit) && item.benefit.map((benefit, index) => (
           <div key={index} className="flex mb-2 items-start justify-start">
             <img
               src={item.path} 
@@ -192,7 +202,7 @@ function Card({ item }) {
           onChange={handleChange} 
           defaultValue={0}
         >
-          {item.durasi.map((d, index) => (
+          {Array.isArray(item.durasi) && item.durasi.map((d, index) => (
             <option key={index} value={index}>
               {item.diskon[index] === 0 ? (
                 <>{d} - {item.harga[index]}</>

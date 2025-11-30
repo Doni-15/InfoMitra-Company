@@ -25,15 +25,14 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
     const [previewUrl, setPreviewUrl] = useState(null);
 
     useEffect(() => {
-        if (isOpen) {
-        } else {
+        if (!isOpen) {
             resetForm();
         }
     }, [isOpen]);
 
     useEffect(() => {
         return () => {
-            if (previewUrl) {
+            if (previewUrl && previewUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(previewUrl);
             }
         };
@@ -107,7 +106,7 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
             await brosurService.create(formData);
             
             toast.success("Brosur berhasil diterbitkan!");
-            onSuccess();
+            onSuccess?.(); 
             onClose();
 
         } catch (error) {
@@ -186,7 +185,6 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
                             )}
                         </div>
 
-                        {/* Nama Mitra */}
                         <div>
                             <label className="block text-sm text-gray-400 mb-1">Nama Mitra / Usaha</label>
                             <input 

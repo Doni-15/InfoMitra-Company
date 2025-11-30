@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { hargaIklanService } from '../../../services/hargaIklanService';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 export function HargaIklan() {
     const [packages, setPackages] = useState([]);
@@ -13,18 +13,23 @@ export function HargaIklan() {
     const fetchPackages = async () => {
         try {
             const data = await hargaIklanService.getAllPackages();
-            setPackages(data || []); 
+            const safeData = Array.isArray(data) ? data : [];
+            
+            setPackages(safeData); 
         } catch (error) {
+            console.error("Error fetching packages:", error);
             toast.error("Gagal memuat data paket. Pastikan server menyala.");
+            setPackages([]); 
         } finally {
             setLoading(false);
         }
     };
 
-
     const handleChange = (index, field, value) => {
         const newPackages = [...packages];
         
+        if (!newPackages[index]) return;
+
         if (field === 'label') {
             newPackages[index][field] = value.toUpperCase();
         } else {
@@ -36,18 +41,24 @@ export function HargaIklan() {
 
     const handleDiscountChange = (pkgIndex, discIndex, value) => {
         const newPackages = [...packages];
-        newPackages[pkgIndex].discounts[discIndex].percent = parseInt(value) || 0;
-        setPackages(newPackages);
+        if (newPackages[pkgIndex] && newPackages[pkgIndex].discounts && newPackages[pkgIndex].discounts[discIndex]) {
+            newPackages[pkgIndex].discounts[discIndex].percent = parseInt(value) || 0;
+            setPackages(newPackages);
+        }
     };
 
     const handleFeatureChange = (pkgIndex, featureIndex, value) => {
         const newPackages = [...packages];
-        newPackages[pkgIndex].features[featureIndex] = value;
-        setPackages(newPackages);
+        if (newPackages[pkgIndex] && newPackages[pkgIndex].features) {
+            newPackages[pkgIndex].features[featureIndex] = value;
+            setPackages(newPackages);
+        }
     };
 
     const addFeature = (pkgIndex) => {
         const newPackages = [...packages];
+        if (!newPackages[pkgIndex]) return;
+        
         if (!newPackages[pkgIndex].features) newPackages[pkgIndex].features = [];
         newPackages[pkgIndex].features.push("");
         setPackages(newPackages);
@@ -55,8 +66,10 @@ export function HargaIklan() {
 
     const removeFeature = (pkgIndex, featureIndex) => {
         const newPackages = [...packages];
-        newPackages[pkgIndex].features.splice(featureIndex, 1);
-        setPackages(newPackages);
+        if (newPackages[pkgIndex] && newPackages[pkgIndex].features) {
+            newPackages[pkgIndex].features.splice(featureIndex, 1);
+            setPackages(newPackages);
+        }
     };
 
     const handleSave = async (pkg) => {
@@ -75,13 +88,15 @@ export function HargaIklan() {
 
     return (
         <div className="min-h-screen bg-[#0f172a] px-6 py-6 text-slate-200 mt-20">
+            <Toaster position="top-center" />
+            
             <div className="mb-8 border-b border-slate-700 pb-4">
                 <h1 className="text-2xl font-bold text-white">Pengaturan Paket & Harga</h1>
                 <p className="text-slate-400 text-sm mt-1">Data ini diambil langsung dari database.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {packages.map((pkg, index) => (
+                {Array.isArray(packages) && packages.map((pkg, index) => (
                     <div key={pkg.id || index} className="bg-[#1e293b] border border-slate-700 rounded-xl p-6 shadow-lg h-fit">
 
                         <div className="border-b border-slate-700 pb-4 mb-4">
@@ -93,7 +108,7 @@ export function HargaIklan() {
                                 <label className="block text-sm text-slate-400 mb-1">Nama Paket</label>
                                 <input
                                     type="text"
-                                    value={pkg.name}
+                                    value={pkg.name || ""}
                                     onChange={(e) => handleChange(index, 'name', e.target.value)}
                                     className="w-full bg-[#0f172a] border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors"
                                 />
@@ -104,7 +119,7 @@ export function HargaIklan() {
                                     <label className="block text-sm text-slate-400 mb-1">Harga Dasar (Rp)</label>
                                     <input
                                         type="number"
-                                        value={pkg.price}
+                                        value={pkg.price || 0}
                                         onChange={(e) => handleChange(index, 'price', e.target.value)}
                                         className="w-full bg-[#0f172a] border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
                                     />
@@ -113,7 +128,7 @@ export function HargaIklan() {
                                     <label className="block text-sm text-slate-400 mb-1">Badge Label</label>
                                     <input
                                         type="text"
-                                        value={pkg.label}
+                                        value={pkg.label || ""}
                                         placeholder="Kosongkan jika tidak ada"
                                         onChange={(e) => handleChange(index, 'label', e.target.value)}
                                         className="w-full bg-[#0f172a] border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
@@ -128,7 +143,7 @@ export function HargaIklan() {
                                         <div key={fIndex} className="flex gap-2 items-center group">
                                             <input
                                                 type="text"
-                                                value={feature}
+                                                value={feature || ""}
                                                 onChange={(e) => handleFeatureChange(index, fIndex, e.target.value)}
                                                 className="flex-1 bg-[#0f172a] border border-slate-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 placeholder-slate-600"
                                                 placeholder="Tulis fitur..."
@@ -159,7 +174,7 @@ export function HargaIklan() {
                                             <div className="flex items-center gap-2">
                                                 <input
                                                     type="number"
-                                                    value={disc.percent}
+                                                    value={disc.percent || 0}
                                                     onChange={(e) => handleDiscountChange(index, dIndex, e.target.value)}
                                                     className="w-16 bg-[#1e293b] border border-slate-600 rounded text-center py-1 text-sm focus:border-blue-500 focus:outline-none"
                                                 />
@@ -182,6 +197,12 @@ export function HargaIklan() {
                         </div>
                     </div>
                 ))}
+                
+                {!loading && Array.isArray(packages) && packages.length === 0 && (
+                     <div className="col-span-full text-center text-gray-500 py-10">
+                        Tidak ada data paket ditemukan.
+                    </div>
+                )}
             </div>
         </div>
     );

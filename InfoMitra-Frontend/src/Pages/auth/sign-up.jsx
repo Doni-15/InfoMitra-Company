@@ -41,6 +41,7 @@ export function SignUp() {
 
         try {
             const cleanEmail = form.email.trim();
+            
             await authService.register({
                 nama: form.nama,
                 email: cleanEmail,
@@ -48,10 +49,13 @@ export function SignUp() {
             });
 
             toast.success("Registrasi Berhasil! Silakan Login.");
-            navigate('/auth/sign-in');
+            
+            setTimeout(() => {
+                navigate('/auth/sign-in');
+            }, 1000);
 
         } catch (err) {
-            const msg = err.response?.data?.message || "Gagal Mendaftar. Coba lagi.";
+            const msg = err.response?.data?.message || err.message || "Gagal Mendaftar. Coba lagi.";
             toast.error(msg);
         } finally {
             setIsLoading(false);
@@ -116,6 +120,7 @@ export function SignUp() {
                                 buttonText={isLoading ? "Memproses..." : "Sign Up"}
                                 tombolKiri={false}
                                 onClick={handleSubmit}
+                                disabled={isLoading}
                             />
                         </div>
                     </div>
