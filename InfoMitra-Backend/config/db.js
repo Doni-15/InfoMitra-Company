@@ -1,25 +1,38 @@
-import { Pool } from "pg";
-import dotenv from "dotenv";
+import pg from 'pg';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
+const { Pool } = pg;
+
 const isProduction = process.env.NODE_ENV === 'production';
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-    ssl: isProduction ? { rejectUnauthorized: false } : false, 
-});
+const dbConfig = connectionString
+    ? {
+        connectionString: connectionString,
+        ssl: {
+            rejectUnauthorized: false,
+        },
+    }
+    : {
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        port: process.env.DB_PORT,
+        ssl: false, 
+    };
 
-pool.on("connect", () => {
-    console.log("Connected to the database");
-});
+const pool = new Pool(dbConfig);
 
-pool.on("error", (err) => {
-    console.error("Database error", err.message); 
+pool.connect((err) => {
+    if (err) {
+        console.error('Koneksi Database Gagal:', err.message);
+    } 
+    else {
+        console.log(`Terhubung ke Database (${isProduction ? 'Cloud/Railway' : 'Lokal'})`);
+    }
 });
 
 export default pool;
