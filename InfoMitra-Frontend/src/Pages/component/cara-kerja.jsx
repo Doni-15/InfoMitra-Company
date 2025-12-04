@@ -12,7 +12,7 @@ export function CaraKerja({pages}) {
         TitlePages('Cara Kerja | ');
     }
 
-    const paddingBottom = pages ? "pb-20" : "pb-10";
+    const paddingBottom = pages ? "pb-20 mt-10" : "pb-10";
 
     return (
         <motion.section 

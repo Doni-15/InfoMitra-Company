@@ -12,12 +12,19 @@ export function BrosurKecil(){
         const fetchData = async () => {
             try {
                 const data = await brosurService.getGrid();
-                const safeData = Array.isArray(data) ? data : [];
+                let safeData = [];
+                if (Array.isArray(data)) {
+                    safeData = data;
+                } else if (data && Array.isArray(data.data)) {
+                    safeData = data.data;
+                }
+
                 setBrosurList(safeData);
                 setFilteredData(safeData);
             } catch (error) {
                 console.error("Gagal memuat brosur:", error);
                 setBrosurList([]);
+                setFilteredData([]);
             } finally {
                 setLoading(false);
             }
@@ -28,11 +35,13 @@ export function BrosurKecil(){
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
+            const sourceData = brosurList || [];
+
             if (!searchTerm) {
-                setFilteredData(brosurList);
+                setFilteredData(sourceData);
             } else {
                 const lowerTerm = searchTerm.toLowerCase();
-                const results = (brosurList || []).filter(item => 
+                const results = sourceData.filter(item => 
                     (item?.nama_mitra && item.nama_mitra.toLowerCase().includes(lowerTerm)) ||
                     (item?.kategori && item.kategori.toLowerCase().includes(lowerTerm))
                 );

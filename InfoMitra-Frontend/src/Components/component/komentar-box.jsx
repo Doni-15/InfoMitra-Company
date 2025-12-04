@@ -10,7 +10,15 @@ export function KomentarBox() {
         const fetchTestimonis = async () => {
             try {
                 const data = await testimoniService.getPublic(); 
-                setTestimonis(Array.isArray(data) ? data : []); 
+                
+                let safeData = [];
+                if (Array.isArray(data)) {
+                    safeData = data;
+                } else if (data && Array.isArray(data.data)) {
+                    safeData = data.data;
+                }
+
+                setTestimonis(safeData);
             } 
             catch (error) {
                 console.error("Gagal memuat testimoni", error);
@@ -35,7 +43,11 @@ export function KomentarBox() {
 
     const formatDate = (dateString) => {
         if (!dateString) return "";
-        return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        try {
+            return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch (e) {
+            return "-";
+        }
     };
 
     return (
@@ -58,11 +70,7 @@ export function KomentarBox() {
                         <p className="text-gray-400 animate-pulse">Sedang memuat ulasan...</p>
                     </div>
                 ) : (!testimonis || testimonis.length === 0) ? (
-                    <div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="text-center p-12 bg-white rounded-2xl border-2 border-dashed border-gray-200 max-w-md mx-auto"
-                    >
+                    <div className="text-center p-12 bg-white rounded-2xl border-2 border-dashed border-gray-200 max-w-md mx-auto">
                         <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
                             <Quote size={24} />
                         </div>
@@ -70,34 +78,37 @@ export function KomentarBox() {
                         <p className="text-gray-500 text-sm">Jadilah mitra pertama yang membagikan pengalaman Anda bersama InfoMitra!</p>
                     </div>
                 ) : (
-                    <div 
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.1 }}
-                    >
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {(testimonis || []).map((item) => (
                             <div 
                                 key={item.id} 
-                                whileHover={{ y: -5 }}
-                                className="group bg-white p-8 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 hover:border-blue-100 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 flex flex-col relative"
+                                className="group bg-white p-8 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 hover:border-blue-100 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 flex flex-col relative transform hover:-translate-y-1"
                             >
                                 <div className="absolute top-6 right-8 text-gray-100 group-hover:text-blue-50 transition-colors duration-300">
                                     <Quote size={80} className="transform rotate-180" />
                                 </div>
 
                                 <div className="flex items-center gap-4 mb-6 relative z-10">
-                                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 p-[2px] shadow-lg">
+                                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 p-[2px] shadow-lg shrink-0">
                                         <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-blue-600 font-bold text-xl overflow-hidden">
                                             {item.foto_profil ? (
-                                                <img src={item.foto_profil} alt={item.nama} className="w-full h-full object-cover"/>
+                                                <img 
+                                                    src={item.foto_profil} 
+                                                    alt={item.nama} 
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.style.display = 'none';
+                                                        e.target.parentElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'; 
+                                                    }}
+                                                />
                                             ) : (
                                                 item.nama ? item.nama.charAt(0).toUpperCase() : <User size={24}/>
                                             )}
                                         </div>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900 text-base line-clamp-1">{item.nama}</h4>
+                                        <h4 className="font-bold text-gray-900 text-base line-clamp-1">{item.nama || "User"}</h4>
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border ${
                                                 item.user_role === 'mitra' 
@@ -112,7 +123,7 @@ export function KomentarBox() {
 
                                 <div className="flex-1 relative z-10">
                                     <div className="flex gap-1 mb-4">
-                                        {renderStars(item.rating)}
+                                        {renderStars(item.rating || 5)}
                                     </div>
                                     <p className="text-gray-600 text-[15px] leading-relaxed italic">
                                         "{item.isi_text}"

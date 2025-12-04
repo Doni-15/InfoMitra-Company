@@ -11,20 +11,31 @@ export function PricingCard() {
       try {
         const result = await hargaIklanService.getAllPackages();
         
-        const mappedData = (result || []).map((pkg) => {
+        // PERBAIKAN 2: ANTI-CRASH (Cek format data sebelum di-map)
+        let dataToMap = [];
+        if (Array.isArray(result)) {
+            dataToMap = result;
+        } else if (result && Array.isArray(result.data)) {
+            dataToMap = result.data;
+        } else if (result && Array.isArray(result.payload)) {
+            dataToMap = result.payload;
+        }
+
+        const mappedData = dataToMap.map((pkg) => {
           const labelUpper = (pkg.label || "").toUpperCase();
-          const isVIP = pkg.name.toLowerCase().includes("vip");
+          const isVIP = pkg.name ? pkg.name.toLowerCase().includes("vip") : false;
           const isSpecialTheme = isVIP; 
           const durasiArr = [];
           const hargaArr = [];
           const diskonArr = [];
 
+          // PERBAIKAN 3: Safety check untuk discounts (pkg.discounts || [])
           if (pkg.discounts && pkg.discounts.length > 0) {
              pkg.discounts.forEach((disc) => {
                 const labelDurasi = disc.duration === 12 ? "1 Tahun" : `${disc.duration} Bulan`;
-                const totalHargaRaw = pkg.price * disc.duration;
+                const totalHargaRaw = (pkg.price || 0) * disc.duration; // Pastikan pkg.price ada
                 const stringHarga = `Rp ${totalHargaRaw.toLocaleString("id-ID")}`;
-                const decimalDiskon = disc.percent / 100;
+                const decimalDiskon = (disc.percent || 0) / 100;
 
                 durasiArr.push(labelDurasi);
                 hargaArr.push(stringHarga);
@@ -33,7 +44,7 @@ export function PricingCard() {
           } 
           else {
              durasiArr.push("1 Bulan");
-             hargaArr.push(`Rp ${pkg.price.toLocaleString("id-ID")}`);
+             hargaArr.push(`Rp ${(pkg.price || 0).toLocaleString("id-ID")}`);
              diskonArr.push(0);
           }
 
@@ -43,7 +54,7 @@ export function PricingCard() {
             background: isSpecialTheme ? "bg-[var(--color-base-100)] text-gray-300" : "bg-[#ececec] text-blue-950",
             path: isSpecialTheme ? CheckIcon2 : CheckIcon,
             populer: labelUpper === "POPULER", 
-            benefit: pkg.features,
+            benefit: pkg.features || [], // Safety check benefit
             durasi: durasiArr,
             harga: hargaArr,
             diskon: diskonArr
@@ -54,6 +65,7 @@ export function PricingCard() {
       } 
       catch (error) {
         console.error("Gagal ambil data paket:", error);
+        setDataPaket([]); // Set array kosong jika error
       } 
       finally {
         setLoading(false);
@@ -69,13 +81,18 @@ export function PricingCard() {
 
   return (
     <section className="w-full mx-auto px-4 md:px-20 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10">
-      {dataPaket.map((item) => (
-        <Card key={item.id} item={item} />
-      ))}
+      {dataPaket.length > 0 ? (
+          dataPaket.map((item) => (
+            <Card key={item.id} item={item} />
+          ))
+      ) : (
+          <div className="col-span-full text-center py-10 text-gray-400 border-2 border-dashed border-gray-200">
+              Belum ada paket tersedia.
+          </div>
+      )}
     </section>
   );
 }
-
 
 function Card({ item }) {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -92,6 +109,8 @@ function Card({ item }) {
   const handleChange = (e) => {
     const selectedIndex = parseInt(e.target.value);
     
+    if (!item.harga[selectedIndex] || !item.durasi[selectedIndex]) return;
+
     const hargaRaw = item.harga[selectedIndex];
     const hargaNum = parseRp(hargaRaw);
     const diskonVal = item.diskon[selectedIndex];
@@ -108,13 +127,14 @@ function Card({ item }) {
     setSelectedItems([newData]);
   };
 
-  const defaultHargaRaw = item.harga[0];
+  // Default values (Safety check dengan ||)
+  const defaultHargaRaw = item.harga[0] || "Rp 0";
   const defaultHargaNum = parseRp(defaultHargaRaw);
-  const defaultDiskon = item.diskon[0];
+  const defaultDiskon = item.diskon[0] || 0;
   const defaultHargaDiskonNum = defaultHargaNum * (1 - defaultDiskon);
 
   const displayItem = selectedItems[0] || {
-    durasi: item.durasi[0],
+    durasi: item.durasi[0] || "-",
     hargaAsli: defaultHargaRaw,
     diskon: defaultDiskon,
     hargaFinal: defaultDiskon > 0 ? formatRp(defaultHargaDiskonNum) : defaultHargaRaw,
@@ -128,7 +148,7 @@ function Card({ item }) {
       Halo Admin InfoMitra, saya ingin memesan:
       *Paket:* ${item.judul}
       *Durasi:* ${displayItem.durasi}
-      *Diskon:* ${displayItem.diskon}
+      *Diskon:* ${displayItem.diskon * 100}%
       *Harga:* ${displayItem.hargaFinal}
 
       Mohon info cara pembayarannya. Terima kasih!
@@ -155,7 +175,7 @@ function Card({ item }) {
             </>
           ) : (
             <>
-               <h1 className="text-3xl font-bold text-center">
+               <h1 className="text-3xl font-bold text-center mt-7">
                  {displayItem.hargaFinal}
                </h1>
             </>
@@ -176,7 +196,7 @@ function Card({ item }) {
             <img
               src={item.path} 
               alt="Check"
-              width={"20px"}
+              width="20px"
               className="mr-3 mt-1"
               onError={(e) => e.target.style.display = 'none'}
             />

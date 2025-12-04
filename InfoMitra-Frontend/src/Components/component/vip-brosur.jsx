@@ -21,15 +21,25 @@ export function BrosurVip() {
     const [isHovered, setIsHovered] = useState(false);
     const containerRef = useRef(null);
 
-    const banyakBanner = banners.length;
+    const banyakBanner = banners?.length || 0;
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const data = await brosurService.getVip();
-                setBanners(data);
+                
+                if (Array.isArray(data)) {
+                    setBanners(data);
+                } else if (data && Array.isArray(data.data)) {
+                    setBanners(data.data);
+                } else {
+                    setBanners([]);
+                    console.error("Format data Brosur VIP salah:", data);
+                }
+
             } catch (error) {
                 console.error("Gagal memuat banner VIP:", error);
+                setBanners([]);
             } finally {
                 setLoading(false);
             }
@@ -85,7 +95,7 @@ export function BrosurVip() {
         </div>
     );
     
-    if (banners.length === 0) {
+    if (banyakBanner === 0) {
         return (
             <>
                 <div className="bg-gray-100 h-70 py-15 mb-10">
@@ -108,11 +118,11 @@ export function BrosurVip() {
                     className="flex transition-transform duration-700 ease-out h-full items-center"
                     style={{ transform: `translateX(calc(-${activeIndex * 70}% + 15%))` }}
                 >
-                    {banners.map((banner, idx) => {
+                    {Array.isArray(banners) && banners.map((banner, idx) => {
                         const isActive = idx === activeIndex;
                         return (
                             <div
-                                key={banner.id}
+                                key={banner.id || idx}
                                 className={`flex-shrink-0 w-[70vw] md:w-[70%] px-4 transition-all duration-700 ease-out 
                                 ${isActive ? "scale-100 opacity-100 z-10 blur-0" : "scale-85 opacity-50 blur-[1px] grayscale-[30%]"}`}
                             >
@@ -161,7 +171,7 @@ export function BrosurVip() {
                     </div>
 
                     <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
-                        {banners.map((_, idx) => (
+                        {Array.isArray(banners) && banners.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setActiveIndex(idx)}
