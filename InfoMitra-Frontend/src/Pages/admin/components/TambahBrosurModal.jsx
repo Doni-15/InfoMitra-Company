@@ -134,7 +134,6 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="bg-[#0f1c45] border border-blue-800 w-full max-w-3xl rounded-xl shadow-2xl p-6 text-white overflow-y-auto max-h-[90vh]">
-                
                 <div className="flex justify-between items-center mb-6 border-b border-blue-800 pb-4">
                     <h2 className="text-xl font-bold flex items-center gap-2">
                         <Plus className="text-blue-400" /> Tambah Brosur Baru
@@ -145,7 +144,6 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
                     <div className="space-y-4">
                         
                         <div 
@@ -186,7 +184,6 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
                             )}
                         </div>
 
-                        {/* Nama Mitra */}
                         <div>
                             <label className="block text-sm text-gray-400 mb-1">Nama Mitra / Usaha</label>
                             <input 
@@ -201,7 +198,7 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
                                 <label className="block text-sm text-gray-400 mb-1">Kategori</label>
                                 <select value={kategori} onChange={(e) => setKategori(e.target.value)}
                                     className="w-full bg-[#1b2b5a] border border-blue-800 rounded p-2 focus:outline-none">
-                                    {KATEGORI_OPTIONS.map(opt => (
+                                    {(Array.isArray(KATEGORI_OPTIONS) ? KATEGORI_OPTIONS : []).map(opt => (
                                         <option key={opt} value={opt}>{opt}</option>
                                     ))}
                                 </select>
@@ -210,7 +207,7 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
                                 <label className="block text-sm text-gray-400 mb-1">Posisi Iklan</label>
                                 <select value={posisi} onChange={(e) => setPosisi(e.target.value)}
                                     className="w-full bg-[#1b2b5a] border border-blue-800 rounded p-2 focus:outline-none">
-                                    {POSISI_OPTIONS.map(opt => (
+                                    {(Array.isArray(POSISI_OPTIONS) ? POSISI_OPTIONS : []).map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </select>

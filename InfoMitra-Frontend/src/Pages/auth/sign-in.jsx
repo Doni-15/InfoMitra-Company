@@ -46,14 +46,13 @@ export function SignIn({ setUser }){
             }
 
             if (loggedInUser.role && loggedInUser.role.toLowerCase() === 'admin') {
-                toast.success(`Login Admin Berhasil! Halo ${loggedInUser.nama}`);
-                
                 setTimeout(() => {
                     navigate("/admin", { replace: true }); 
                 }, 100);
             }
             else {
                 toast.success(`Login Berhasil! \nHalo ${loggedInUser.nama}`);
+
                 setTimeout(() => {
                     navigate("/Pages/galeri-iklan", { replace: true });
                 }, 100);
@@ -70,64 +69,87 @@ export function SignIn({ setUser }){
     }
 
     return(
-        <>
-            <section className="w-screen h-screen bg-[var(--color-base-400)] flex flex-col items-center justify-center">
-                <div className="flex px-15 my-5 w-full">
-                    
-                    <div className="w-1/2 rounded-l-4xl py-10 px-8 bg-[var(--warna-netral-abu)]">
-                        <h1 className="text-2xl font-bold tracking-wider mb-5 text-center">LOGIN</h1>
-                        
+        <section className="min-h-screen w-full bg-base-400 flex items-center justify-center p-4 md:p-6 font-sans">
+            <div className="w-full max-w-5xl bg-netral-putih rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row">
+                <div className="w-full lg:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+                    <div className="mb-8 text-center lg:text-left">
+                        <h1 className="text-3xl lg:text-4xl font-bold text-utama mb-2">
+                            Selamat Datang
+                        </h1>
+                        <p className="text-neutral/70">
+                            Silakan masuk untuk melanjutkan
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                        <InputBox
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="contoh: usaha@gmail.com"
+                            judul="Email"
+                            value={form.email}
+                            autoComplete="username"
+                            onChange={handleChange}
+                            disabled={isLoading}
+                        />
+
+                        <InputBox
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Masukkan Password"
+                            judul="Password"
+                            value={form.password}
+                            autoComplete="current-password"
+                            onChange={handleChange}
+                            disabled={isLoading}
+                        />
+
+                        <button type="submit" className="hidden" disabled={isLoading} />
+
                         {error && (
-                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-center text-sm font-semibold">
-                                {error}
+                            <div 
+                                role="alert"
+                                className="flex flex-col text-sm bg-error/10 border border-error text-error px-4 py-3 rounded-xl animate-pulse"
+                            >
+                                <strong className="font-bold">Terjadi Kesalahan!</strong>
+                                <span>{error}</span>
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className='flex flex-col gap-5 mb-10'>
-                            <InputBox
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="contoh: usaha@gmail.com"
-                                judul="Email"
-                                value={form.email}
-                                autoComplete="username"
-                                onChange={handleChange}
-                                disabled={isLoading}
-                            />
-    
-                            <InputBox
-                                id="password"
-                                name="password"
-                                type="password"
-                                placeholder="Masukkan Password"
-                                judul="Password"
-                                value={form.password}
-                                autoComplete="current-password"
-                                onChange={handleChange}
-                                disabled={isLoading}
+                        <div className="mt-4">
+                            <SideBarAunt 
+                                buttonText={isLoading ? "Memproses..." : "Sign In"}
+                                tombolKiri={false}
+                                onClick={isLoading ? undefined : handleSubmit}
                             />
 
-                            <button type="submit" className="hidden" disabled={isLoading} />
-                        </form>
-                        
-                        <SideBarAunt 
-                            buttonText={isLoading ? "Memproses..." : "Sign In"}
-                            tombolKiri={false}
-                            onClick={handleSubmit}
+                            <div
+                                onClick={() => navigate("/Pages/galeri-iklan")}
+                                className='text-right mt-1 text-base-300 hover:text-base-200 hover:underline cursor-pointer'>
+                                Masuk sebagai tamu?
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="w-full lg:w-1/2 bg-utama text-netral-putih relative flex flex-col justify-center items-center p-12 overflow-hidden">
+                    <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                    <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                    <div className="relative z-10 text-center w-full">
+                        <SideBarAunt
+                            title="Belum Memiliki Akun?"
+                            subTitle="Daftarkan diri anda sekarang untuk mulai mengakses fitur kami."
+                            buttonText="Sign Up"
+                            buttonLink="/auth/sign-up"
+                            navigate={navigate}
+                            tombolKiri={true}
                         />
                     </div>
-
-                    <SideBarAunt 
-                        title="Belum Memiliki Akun?"
-                        subTitle="Sign Up Untuk Memulai"
-                        buttonText="Sign Up"
-                        buttonLink="/auth/sign-up"
-                        navigate={navigate}
-                        tombolKiri={true}
-                    />
                 </div>
-            </section>
-        </>
+
+            </div>
+        </section>
     );
 }

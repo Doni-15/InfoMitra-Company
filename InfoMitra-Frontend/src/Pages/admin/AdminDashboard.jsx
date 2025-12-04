@@ -1,7 +1,6 @@
 import "../../Components/style-global/form-style.css"
 
 import { Outlet } from "react-router-dom";
-
 import { SideBar } from "./components/sidebar.jsx"
 import { AdminProfil } from './components/admin-profil.jsx';
 

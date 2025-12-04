@@ -27,20 +27,22 @@ export const updatePackage = async (req, res) => {
         const { id } = req.params;
         const { name, price, label, features, discounts } = req.body;
 
+        if (!name || price === undefined) {
+            return res.status(400).json({ message: "Nama paket dan harga wajib diisi" });
+        }
+
         const dataToUpdate = {
             nama_paket: name,
             harga_dasar: price,
             badge_label: label,
-            daftar_fitur: features,
-            setting_diskon: discounts
+            daftar_fitur: features, 
+            setting_diskon: JSON.stringify(discounts) 
         };
 
         const updatedData = await updatePackageModel(id, dataToUpdate);
 
         if (!updatedData) {
-            return res.status(404).json({ 
-                message: "Paket tidak ditemukan" 
-            });
+            return res.status(404).json({ message: "Paket tidak ditemukan di Database" });
         }
 
         res.status(200).json({ 
@@ -50,7 +52,8 @@ export const updatePackage = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ 
-            message: "Gagal update paket" 
+            message: "Gagal update paket (Cek Terminal Server)",
+            error_detail: error.message 
         });
     }
 };

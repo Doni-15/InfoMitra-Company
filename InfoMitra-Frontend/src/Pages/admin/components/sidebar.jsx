@@ -31,7 +31,7 @@ export function SideBar(){
 
     return(
         <>
-            <section className="w-2/8 py-10 px-5 border-r-2 border-[var(--color-base-200)] fixed min-h-screen">
+            <section className="w-2/8 py-10 px-5 border-r-2 border-[var(--color-base-200)] fixed min-h-screen max-h-screen overflow-auto flex flex-col">
                 <LogoUsaha />
 
                 <section className='mt-15 text-lg font-semibold flex flex-col gap-2'>
@@ -51,6 +51,10 @@ export function SideBar(){
                         </NavLink>
                     ))}
                 </section>
+
+                <div className="text-center py-6 text-xs text-gray-400 mt-auto">
+                    &copy; {new Date().getFullYear()} Admin Panel InfoMitra
+                </div>
             </section>
         </>
     );
