@@ -115,49 +115,41 @@ export const createBrosur = async (req, res) => {
 };
 
 export const updateBrosur = async (req, res) => {
+    console.log("=== DEBUG UPDATE ===");
+    console.log("1. Files:", req.file); // <--- INI KUNCINYA. Kalau undefined, berarti masalah di Frontend/Axios
+    console.log("2. Body:", req.body);
+    
     const { id } = req.params;
     
     try {
         const oldData = await Brosur.getById(id);
         if (!oldData) {
+            if (req.file) fs.unlinkSync(req.file.path);
             return res.status(404).json({ msg: "Brosur tidak ditemukan" });
         }
 
-        let finalGambarUrl = oldData.gambar_url;
+        let dataUpdate = { 
+            ...req.body 
+        };
 
         if (req.file) {
             const protocol = req.headers['x-forwarded-proto'] || req.protocol;
             const host = req.get('host');
+            const newGambarUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
 
-            finalGambarUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
-            
-            if(oldData.gambar_url) {
+            dataUpdate.gambar_url = newGambarUrl;
+
+            if (oldData.gambar_url) {
                 const oldFileName = oldData.gambar_url.split('/').pop();
                 const oldFilePath = path.join(process.cwd(), 'uploads', oldFileName);
+                
                 if (fs.existsSync(oldFilePath)) {
                     fs.unlinkSync(oldFilePath);
                 }
             }
-        }
+        } 
 
-        const { 
-            nama_mitra, 
-            kategori, 
-            link_tujuan, 
-            posisi_iklan, 
-            status_bayar, 
-            tanggal_berakhir 
-        } = req.body;
-        
-        const updated = await Brosur.update(id, { 
-            nama_mitra, 
-            kategori,
-            gambar_url: finalGambarUrl, 
-            link_tujuan, 
-            posisi_iklan,
-            status_bayar,
-            tanggal_berakhir
-        });
+        const updated = await Brosur.update(id, dataUpdate);
 
         res.json({ 
             msg: "Data brosur berhasil diperbarui",
@@ -165,7 +157,7 @@ export const updateBrosur = async (req, res) => {
         });
 
     } catch (error) {
-        if (req.file) {
+        if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }
         res.status(500).json({ msg: error.message });

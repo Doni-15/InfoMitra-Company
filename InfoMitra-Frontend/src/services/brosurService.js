@@ -38,7 +38,11 @@ export const brosurService = {
     },
 
     update: async (id, formData) => {
-        const response = await api.put(`${BROSUR_API}/${id}`, formData);
+        const response = await api.patch(`${BROSUR_API}/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return response.data;
     },
 

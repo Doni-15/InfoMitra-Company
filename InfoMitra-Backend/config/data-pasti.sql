@@ -6,12 +6,10 @@ VALUES
     ('Admin InfoMitra', 'admin@infomitra.com', 'admin123', 'admin')
 ;
 
-UPDATE MitraBrosurs
-SET 
-  tanggal_berakhir = '2025-10-29 11:10:29.352616'
-WHERE id = 9;
-
-
+SELECT * FROM Users;
+UPDATE Users
+SET role = 'admin'
+WHERE id = 'a3867ae7-778c-4c03-b7a4-0181a43d6869';
 -- VIP Data Seed
 INSERT INTO harga_iklan (nama_paket, harga_dasar, badge_label, daftar_fitur, setting_diskon)
 VALUES (

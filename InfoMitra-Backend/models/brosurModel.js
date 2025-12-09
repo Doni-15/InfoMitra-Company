@@ -90,22 +90,29 @@ const Brosur = {
         return res.rows[0];
     },
 
-    update: async (id, data) => {
+update: async (id, data) => {
         const { 
             nama_mitra, kategori, gambar_url, link_tujuan, posisi_iklan, status_bayar, tanggal_berakhir 
         } = data;
-        
+
         const query = `
             UPDATE MitraBrosurs 
-            SET nama_mitra=$1, kategori=$2, gambar_url=$3, link_tujuan=$4, posisi_iklan=$5, status_bayar=$6, tanggal_berakhir=$7
-            WHERE id=$8
+            SET 
+                nama_mitra = $1, 
+                kategori = $2, 
+                gambar_url = COALESCE($3, gambar_url), 
+                link_tujuan = $4, 
+                posisi_iklan = $5, 
+                status_bayar = $6, 
+                tanggal_berakhir = $7
+            WHERE id = $8
             RETURNING *
         `;
         
         const res = await pool.query(query, [
             nama_mitra, 
             kategori, 
-            gambar_url, 
+            gambar_url || null, 
             link_tujuan, 
             posisi_iklan, 
             status_bayar,
