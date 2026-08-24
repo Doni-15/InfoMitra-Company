@@ -9,7 +9,7 @@ import {
 
 import { TestimoniModal } from '@/Components';
 
-export function UserDetailProfil({ user, setUser }){
+export function UserDetailProfil({ user }){
     const navigate = useNavigate(); 
     const [myBrosurs, setMyBrosurs] = useState([]);
     const [loadingBrosur, setLoadingBrosur] = useState(true);

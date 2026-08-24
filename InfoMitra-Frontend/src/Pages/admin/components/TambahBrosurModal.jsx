@@ -25,8 +25,7 @@ export function TambahBrosurModal({ isOpen, onClose, onSuccess }) {
     const [previewUrl, setPreviewUrl] = useState(null);
 
     useEffect(() => {
-        if (isOpen) {
-        } else {
+        if (!isOpen) {
             resetForm();
         }
     }, [isOpen]);

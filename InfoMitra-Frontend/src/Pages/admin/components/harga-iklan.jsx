@@ -16,7 +16,7 @@ export function HargaIklan() {
         try {
             const data = await hargaIklanService.getAllPackages();
             setPackages(Array.isArray(data) ? data : []); 
-        } catch (error) {
+        } catch {
             toast.error("Gagal memuat data paket.");
             setPackages([]);
         } finally {
