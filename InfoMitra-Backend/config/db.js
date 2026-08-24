@@ -1,19 +1,23 @@
 import pg from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { databaseCa, runtimeConfig } from './env.js';
 
 const { Pool } = pg;
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = runtimeConfig.isProduction;
 const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+const useTls = isProduction || process.env.DB_SSL === 'true';
+const ca = databaseCa();
+const ssl = useTls
+    ? {
+        rejectUnauthorized: true,
+        ...(ca ? { ca } : {}),
+    }
+    : false;
 
 const dbConfig = connectionString
     ? {
         connectionString: connectionString,
-        ssl: {
-            rejectUnauthorized: false,
-        },
+        ssl,
     }
     : {
         host: process.env.DB_HOST,
@@ -21,7 +25,7 @@ const dbConfig = connectionString
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
         port: process.env.DB_PORT,
-        ssl: false, 
+        ssl,
     };
 
 const pool = new Pool(dbConfig);

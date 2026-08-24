@@ -1,6 +1,12 @@
 import Brosur from '../models/brosurModel.js';
 import fs from 'fs';
 import path from 'path';
+import { runtimeConfig } from '../config/env.js';
+
+const uploadUrl = (filename) => new URL(
+    `/uploads/${encodeURIComponent(filename)}`,
+    runtimeConfig.publicBaseUrl
+).toString();
 
 export const getVipBrosurs = async (req, res) => {
     try {
@@ -81,9 +87,7 @@ export const createBrosur = async (req, res) => {
         return res.status(400).json({ msg: "Email User pemilik brosur wajib diisi!" });
     }
 
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.get('host');
-    const gambar_url = `${protocol}://${host}/uploads/${req.file.filename}`;
+    const gambar_url = uploadUrl(req.file.filename);
 
     try {
         const newBrosur = await Brosur.create({ 
@@ -115,10 +119,6 @@ export const createBrosur = async (req, res) => {
 };
 
 export const updateBrosur = async (req, res) => {
-    console.log("=== DEBUG UPDATE ===");
-    console.log("1. Files:", req.file); // <--- INI KUNCINYA. Kalau undefined, berarti masalah di Frontend/Axios
-    console.log("2. Body:", req.body);
-    
     const { id } = req.params;
     
     try {
@@ -133,9 +133,7 @@ export const updateBrosur = async (req, res) => {
         };
 
         if (req.file) {
-            const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-            const host = req.get('host');
-            const newGambarUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+            const newGambarUrl = uploadUrl(req.file.filename);
 
             dataUpdate.gambar_url = newGambarUrl;
 

@@ -45,7 +45,7 @@ export function KomentarBox() {
         if (!dateString) return "";
         try {
             return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        } catch (e) {
+        } catch {
             return "-";
         }
     };

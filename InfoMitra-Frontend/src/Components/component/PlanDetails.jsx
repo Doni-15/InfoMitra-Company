@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const formatCurrency = (amount) => {
     return amount.toLocaleString('id-ID');
@@ -8,10 +8,6 @@ export function PlanDetails ({ plan }) {
     const [quantity, setQuantity] = useState(1);
     const minBulan = 1;
     const maxBulan = 99;
-
-    useEffect(() => {
-        setQuantity(1);
-    }, [plan]);
 
     const handleIncrease = () => {
         setQuantity((prevQty) => Math.min(prevQty + 1, maxBulan));
